@@ -1,0 +1,40 @@
+#!/bin/bash
+
+testfunc2 ()
+{
+    echo "$# parameters";
+    echo Using '$*';
+    for p in $*;
+    do
+        echo "[$p]";
+    done;
+    echo Using '"$*"';
+    for p in "$*";
+    do
+        echo "[$p]";
+    done;
+    echo Using '$@';
+    for p in $@;
+    do
+        echo "[$p]";
+    done;
+    echo Using '"$@"';
+    for p in "$@";
+    do
+        echo "[$p]";
+    done
+
+}
+
+
+testfunc2 abc "a bc" "1 2 3"
+BUILD_PARAMETERS="OTHER_CODE_SIGN_FLAGS=--deep GCC_PREPROCESSOR_DEFINITIONS=\"\$GCC_PREPROCESSOR_DEFINITIONS CHANNEL_TYPE_APPSTORE\""
+arg1="OTHER_CODE_SIGN_FLAGS=--deep"
+arg2="GCC_PREPROCESSOR_DEFINITIONS=\$GCC_PREPROCESSOR_DEFINITIONS CHANNEL_TYPE_APPSTORE'"
+BUILD_PARAMETERS="$arg1 $arg2"
+echo "******quote******"
+testfunc2 "$BUILD_PARAMETERS"
+echo "******unquote******"
+testfunc2 $BUILD_PARAMETERS
+echo "*******************"
+testfunc2 OTHER_CODE_SIGN_FLAGS=--deep GCC_PREPROCESSOR_DEFINITIONS='\$GCC_PREPROCESSOR_DEFINITIONS CHANNEL_TYPE_APPSTORE'
