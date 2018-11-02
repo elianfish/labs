@@ -18,12 +18,11 @@ def create_project_repo(ini_file):
     repo_names = fp.readlines()
     fp.close()
 
-
-    #repo_url = 'https://git.yy.com/gittooltest/g-ci-01/third-project.git'
-    repo_url = 'https://git.yy.com/apps/kaixindou/kxd-ios.git'
+    repo_url = 'https://git.test.com/gittooltest/g-ci/third-project.git'
     parent_group_name = repo_url.split('/')[3]
     sub_group_name  = repo_url.split('/')[4]
     project_name = repo_url.split('/')[5].replace('.git','')
+    descri = project_name
     print (parent_group_name,sub_group_name,project_name)
 
     ## login
@@ -52,7 +51,8 @@ def create_project_repo(ini_file):
         if project:
             print ("%s project found" % project_name)
         else:
-            print ("%s project not exist" % project_name)
+            print ("%s project not exist,新创建一个" % project_name)
+            new_project = gl.projects.create({'name': project_name, 'namespace_id': subgroup_id_value, 'description': descri}) # 创建项目
     else:
         print ("%s subgroup not exist" % sub_group_name)
 
