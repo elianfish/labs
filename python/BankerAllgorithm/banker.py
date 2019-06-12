@@ -34,6 +34,9 @@ class banker():
         self.sequence = []
         self._sys_statu()
 
+    def set_allocation(self, allo):
+        return allo
+
     def execute(self, processes, max_data, request_data):
         req_processes = np.array(processes)
         pn_num = len(processes)
@@ -42,7 +45,6 @@ class banker():
         allocation = np.zeros((pn_num, self.res_num), dtype=np.int64)
         need = max - allocation   # 还需要多少个（最大需求-已分配数）
 
-        #self._show(req_processes, max, request, allocation, need)
         print('###当前初始状态:')
         self._show_table(req_processes, max, allocation, need)
 
@@ -58,7 +60,7 @@ class banker():
                         print("系统处于安全状态")
                         print("进程{}分配的安全系列：{}".format(processes[i], self.sequence))
                     else:
-                        print("系统处于不安全状态")
+                        print("系统处于不安全状态,资源分配回滚")
                         self.available += request[i]  # 可利用资源恢复
                         need[i] += request[i]  # 尚需的资源数恢复
                         allocation[i] -= request[i]  # 已分配资源恢复
@@ -69,8 +71,6 @@ class banker():
                 print("{}线程请求超出所需总资源数{},请等待".format(request[i], need[i]))
                 return
 
-        #self._show_table(req_processes, max, allocation, need)
-        sys.exit(0)
 
     def _show_table(self, processes, max, allocation, need):
         resdata = '   '.join(self.resoures)
@@ -114,19 +114,20 @@ class banker():
         work_all = np.zeros((n, self.res_num), dtype=np.int64)
         finish = [False]* n
         temp_seg = []
-        while False in finish:
-            for item, name in enumerate(processes):
-                if (finish[item] == False and np.all(need[item] <= work)):
-                    print("work:{}".format(work))
-                    work_all[item] = work
-                    work += allocation[item]
-                    finish[item] = True
-                    temp_seg.append(name)
-                else:
-                    break
+        #while False in finish:
+            #print('false in finish')
+        for item, name in enumerate(processes):
+            if (finish[item] == False and np.all(need[item] <= work)):
+                work_all[item] = work
+                work += allocation[item]
+                finish[item] = True
+                temp_seg.append(name)
+            else:
+                break
 
-        self._show_safe_table(processes, work_all, allocation, need,finish)
-        self.sequence = temp_seg
+        if all(finish):
+            self._show_safe_table(processes, work_all, allocation, need, finish)
+            self.sequence = temp_seg
         return all(finish)
 
     def _show_safe_table(self, processes, work, allocation, need, finish):
@@ -151,41 +152,43 @@ def main():
     resources = ['A','B','C','D','E']
     available = np.full(5, 50)     # 系统资源
     bank = banker(resources, available)
+    req_count = 1
     while(True):
-        x = input('请问是否为进程申请资源(Y|N)?')  # 提示输入
+        x = input('>>第{}次申请,请问是否为进程申请资源(Y|N)?'.format(req_count))  # 提示输入
         if x == 'N':
             print('程序结束运行')
             break
         elif x == 'Y':
-            input_process = input("请输入进程(按逗号隔开)，例如：p0,p1,p2,p3...：")
+            input_process = input(">>请输入进程(按逗号隔开)，例如：p0,p1,p2,p3...：")
             processlist = input_process.split(',')
             pn_num = len(processlist)
             if pn_num <= 0:
-                print("进程不能为空，请重新输入")
+                print("提醒：程不能为空，请重新输入")
                 continue
 
             shape_num = pn_num * R
-            input_max = input("请输入进程{}分别对5类资源的最大需求数(按逗号隔开) :\n".format(','.join(processlist)))
+            input_max = input(">>请输入进程{}分别对5类资源的最大需求数(按逗号隔开) :\n".format(','.join(processlist)))
             max_data = list(map(int, input_max.split(',')))
             if len(max_data) <= 0:
-                print("最大需求数不能为空，请重新输入")
+                print("提醒：最大需求数不能为空，请重新输入")
                 continue
             elif len(max_data) < shape_num:
-                print("数据不能小于进程数{}*资资类别{},请重新输入".format(pn_num, R))
+                print("提醒：数据不能小于进程数{}*资资类别{},请重新输入".format(pn_num, R))
                 continue
 
-            input_request = input("请输入进程{}分别对5类资源请求的资源数(按逗号隔开) :\n".format(','.join(processlist)))
+            input_request = input(">>请输入进程{}分别对5类资源请求的资源数(按逗号隔开) :\n".format(','.join(processlist)))
             request_data = list(map(int, input_request.split(',')))
             if len(max_data) <= 0:
-                print("资源请求数不能为空，请重新输入")
+                print("提醒：资源请求数不能为空，请重新输入")
                 continue
             elif len(max_data) < shape_num:
-                print("数据不能小于进程数{}*资资类别{},请重新输入".format(pn_num, R))
+                print("提醒：数据不能小于进程数{}*资资类别{},请重新输入".format(pn_num, R))
                 continue
 
             bank.execute(processlist, max_data, request_data)
+            req_count += 1
         else:
-            print("您的输入有误，请重新输入")
+            print("提醒：您的输入有误，请重新输入")
             continue
 
 if __name__ == '__main__':
