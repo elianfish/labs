@@ -30,23 +30,26 @@ class banker():
         self.res_num = len(resoures)
         self.available = np.array(available)
         #self.max = np.array()
-        #self.allocation = np.array()
+        self.allocation = np.array('[]')
         self.sequence = []
         self._sys_statu()
 
     def set_allocation(self, allo):
         return allo
 
-    def execute(self, processes, max_data, request_data):
+    def execute(self, processes, max_data, request_data, count):
         req_processes = np.array(processes)
         pn_num = len(processes)
         max = np.array(max_data).reshape((pn_num, self.res_num))
         request = np.array(request_data).reshape((pn_num, self.res_num))
-        allocation = np.zeros((pn_num, self.res_num), dtype=np.int64)
-        need = max - allocation   # 还需要多少个（最大需求-已分配数）
+        if count == 1:
+            self.allocation = np.zeros((pn_num, self.res_num), dtype=np.int64)
+
+        #allocation = np.zeros((pn_num, self.res_num), dtype=np.int64)
+        need = max - self.allocation   # 还需要多少个（最大需求-已分配数）
 
         print('###当前初始状态:')
-        self._show_table(req_processes, max, allocation, need)
+        self._show_table(req_processes, max, self.allocation, need)
 
         for i in range(0, pn_num):
             print('=====进程{}请求资源数{}====='.format(processes[i], request[i]))
@@ -54,16 +57,16 @@ class banker():
                 if np.all(request[i] <= self.available):
                     self.available -= request[i]  # 可利用资源减少
                     need[i] -= request[i]  # 尚需的资源数减少
-                    allocation[i] += request[i]  # 已分配资源增加:
-                    self._show_table(req_processes, max, allocation, need)
-                    if self._check_safe(processes, need, allocation):
+                    self.allocation[i] += request[i]  # 已分配资源增加:
+                    self._show_table(req_processes, max, self.allocation, need)
+                    if self._check_safe(processes, need, self.allocation):
                         print("系统处于安全状态")
                         print("进程{}分配的安全系列：{}".format(processes[i], self.sequence))
                     else:
                         print("系统处于不安全状态,资源分配回滚")
                         self.available += request[i]  # 可利用资源恢复
                         need[i] += request[i]  # 尚需的资源数恢复
-                        allocation[i] -= request[i]  # 已分配资源恢复
+                        self.allocation[i] -= request[i]  # 已分配资源恢复
                 else:
                     print("{}请求超出可利用的资源{}，请等待".format(request[i], self.available))
                     return
@@ -163,7 +166,7 @@ def main():
             processlist = input_process.split(',')
             pn_num = len(processlist)
             if pn_num <= 0:
-                print("提醒：程不能为空，请重新输入")
+                print("提醒：进程不能为空，请重新输入")
                 continue
 
             shape_num = pn_num * R
@@ -173,19 +176,19 @@ def main():
                 print("提醒：最大需求数不能为空，请重新输入")
                 continue
             elif len(max_data) < shape_num:
-                print("提醒：数据不能小于进程数{}*资资类别{},请重新输入".format(pn_num, R))
+                print("提醒：数据不能小于进程数{}*资资类{},请重新输入".format(pn_num, R))
                 continue
 
             input_request = input(">>请输入进程{}分别对5类资源请求的资源数(按逗号隔开) :\n".format(','.join(processlist)))
             request_data = list(map(int, input_request.split(',')))
-            if len(max_data) <= 0:
+            if len(request_data) <= 0:
                 print("提醒：资源请求数不能为空，请重新输入")
                 continue
-            elif len(max_data) < shape_num:
-                print("提醒：数据不能小于进程数{}*资资类别{},请重新输入".format(pn_num, R))
+            elif len(request_data) < shape_num:
+                print("提醒：资源请求数不能小于进程数{}*资资类{},请重新输入".format(pn_num, R))
                 continue
 
-            bank.execute(processlist, max_data, request_data)
+            bank.execute(processlist, max_data, request_data, req_count)
             req_count += 1
         else:
             print("提醒：您的输入有误，请重新输入")
