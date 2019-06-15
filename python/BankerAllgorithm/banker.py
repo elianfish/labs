@@ -25,7 +25,7 @@ class banker():
         '''
         初始化
         '''
-        #self.processes = []
+        self.processes = []
         self.resoures = resoures
         self.res_num = len(resoures)
         self.available = np.array(available)
@@ -38,13 +38,14 @@ class banker():
         return allo
 
     def execute(self, processes, max_data, request_data, count):
-        req_processes = np.array(processes)
         pn_num = len(processes)
-        max = np.array(max_data).reshape((pn_num, self.res_num))
-        request = np.array(request_data).reshape((pn_num, self.res_num))
         if count == 1:
+            self.processes = processes
             self.allocation = np.zeros((pn_num, self.res_num), dtype=np.int64)
 
+        req_processes = np.array(processes)
+        max = np.array(max_data).reshape((pn_num, self.res_num))
+        request = np.array(request_data).reshape((pn_num, self.res_num))
         #allocation = np.zeros((pn_num, self.res_num), dtype=np.int64)
         need = max - self.allocation   # 还需要多少个（最大需求-已分配数）
 
@@ -112,25 +113,33 @@ class banker():
         '''
         安全系列算法
         '''
-        n = len(processes)
+        pn = len(processes)
         work = copy.deepcopy(self.available)
-        work_all = np.zeros((n, self.res_num), dtype=np.int64)
-        finish = [False]* n
+        work_all = np.zeros((pn, self.res_num), dtype=np.int64)
+        finish = [False]* pn
         temp_seg = []
-        #while False in finish:
-            #print('false in finish')
-        for item, name in enumerate(processes):
-            if (finish[item] == False and np.all(need[item] <= work)):
-                work_all[item] = work
-                work += allocation[item]
-                finish[item] = True
-                temp_seg.append(name)
-            else:
-                break
+        count = 0
+        while (count < pn):
+            for item, name in enumerate(processes):
+                if finish[item] is True:
+                    continue
+                #print("进程{},need vs work:{} vs {}".format(name, need[item], work))
+                if (finish[item] == False and np.all(need[item] <= work)):
+                    #print("[*] Finding P{} safe".format(item))
+                    work_all[item] = work
+                    work += allocation[item]
+                    finish[item] = True
+                    temp_seg.append(name)
+
+                else:
+                    if (item == pn): #从进程列表中找不到一个进程能满足条件时
+                        #work_all[item] = work
+                        break
+            count += 1
 
         if all(finish):
-            self._show_safe_table(processes, work_all, allocation, need, finish)
             self.sequence = temp_seg
+            self._show_safe_table(self.sequence, work_all, allocation, need, finish)
         return all(finish)
 
     def _show_safe_table(self, processes, work, allocation, need, finish):
@@ -140,7 +149,8 @@ class banker():
         table.field_names = ["Process","work", "Allocation", "Need", "Work + Allocation", "Finish"]
         table.add_row(["   ", resdata, resdata, resdata, resdata, "  "])
 
-        for item, name in enumerate(processes):
+        for index, name in enumerate(processes):
+            item = self.processes.index(name)
             workdata = '  '.join(map(str, list(work[item])))
             allocationdata = '  '.join(map(str, list(allocation[item])))
             needdata = '  '.join(map(str, list(need[item])))
