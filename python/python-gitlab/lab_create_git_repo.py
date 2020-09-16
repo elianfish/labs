@@ -1,6 +1,8 @@
 #/usr/bin/env python
 # -*- coding: utf-8 -*
 
+__Author__ = 'elian'
+__Date__ = '2018-11-02'
 
 "auto create git repo"
 
@@ -19,6 +21,7 @@ def create_project_repo(ini_file):
     fp.close()
 
     repo_url = 'https://git.test.com/gittooltest/g-ci/third-project.git'
+    #repo_url = 'https://git.yy.com/midwares/yyaudio/aiaudioalign'
     parent_group_name = repo_url.split('/')[3]
     sub_group_name  = repo_url.split('/')[4]
     project_name = repo_url.split('/')[5].replace('.git','')
@@ -35,6 +38,8 @@ def create_project_repo(ini_file):
 
     group = gl.groups.get(parent_group_name)  # 获取parent组对象
     print (group)
+    result = group.search('issues', 'regression')
+    print (result)
     subgroup_id_list = group.subgroups.list() # 获取所有子组group id
     print (subgroup_id_list)
     subgroup_id = group.subgroups.list(search=sub_group_name) # 指定要获取子组的group id

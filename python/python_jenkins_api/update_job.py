@@ -9,10 +9,10 @@ from requests.auth import HTTPBasicAuth
 
 def jenkins_update_job():
 
-    j1server_cfg_file = "/Users/elian/Documents/gitWork/project/jenkins-jobs-cfg/jenkins_jobs.ini"
+    j1server_cfg_file = "/Users/elian/Documents/gitWork/git.yy.com/jenkins-jobs-cfg/jenkins_jobs.ini"
     j1server = get_jenkins_server(j1server_cfg_file)
 
-    j2server_cfg_file = "/Users/elian/Documents/gitWork/project/jenkins-jobs-cfg/jenkins2_jobs.ini"
+    j2server_cfg_file = "/Users/elian/Documents/gitWork/git.yy.com/jenkins-jobs-cfg/jenkins2_jobs.ini"
     j2server = get_jenkins_server(j2server_cfg_file)
 
     #job_name = "entgiftflw"
@@ -56,7 +56,7 @@ def get_jenkins_account(server_cfg_file):
     )
 
 def update_next_build_number(job_name, next_bn):
-    j2server_cfg_file = "/Users/elian/Documents/gitWork/project/jenkins-jobs-cfg/jenkins2_jobs.ini"
+    j2server_cfg_file = "/Users/elian/Documents/gitWork/git.yy.com/jenkins-jobs-cfg/jenkins2_jobs.ini"
     config = EnConfigParser.read_from_file_as_dict(j2server_cfg_file)
     server = jenkins.Jenkins(config['jenkins']['url'], username=config['jenkins']['user'], password=config['jenkins']['password'])
 

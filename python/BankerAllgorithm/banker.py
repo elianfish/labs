@@ -163,12 +163,15 @@ class banker():
 
 
 def main():
-    #R = 5
-    #resources = ['A','B','C','D','E']
-    #available = np.full(5, 50)     # 系统资源
+    R = 5
+    resources = ['A','B','C','D','E']
+    available = np.full(5, 50)     # 系统资源
+    '''
+    #3类资源申请
     R = 3
     resources = ['A','B','C']
     available = [[10, 5, 7]]
+    '''
     bank = banker(resources, available)
     count = 1
     while(True):

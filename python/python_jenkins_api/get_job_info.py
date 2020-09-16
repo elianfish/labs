@@ -12,7 +12,7 @@ import string
 
 def jenkins_update_job():
 
-    j1server_cfg_file = "/Users/elian/Documents/gitWork/jenkins-jobs-cfg/jenkins_jobs.ini"
+    j1server_cfg_file = "/Users/elian/Documents/gitWork/git.yy.com/jenkins-jobs-cfg/jenkins_jobs.ini"
     j1server = get_jenkins_server(j1server_cfg_file)
 
     #job_name = "entgiftflw"

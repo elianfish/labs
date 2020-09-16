@@ -1,0 +1,32 @@
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>项目名</th>
+            <th>运行状态</th>
+            <th>开关操作</th>
+            <th>分析记录</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for business in data %}
+        <tr>
+            <td>{{business.jenkins_job_name}}</td>>
+            {% if business.status == 0 %}
+            <td style="color:green">运行</td>
+            <td><a href="{%url 'close_business'%}?business_id={{business.id}}"> 关闭 </a></td>>
+            {% elif business.status == 1 %}
+            <td style="color:orange">结束</td>
+            <td><a href="{%url 'open_business'%}?business_id={{business.id}}"> 打开 </a></td>>
+            {% else %}
+            <td style="color:red">出错</td>
+            <td><a href="">错误信息</a></td>
+            {% endif %}
+            <td><a href="{%url 'analysis_record'%}?business_id={{business.id}}"> 查看 </a></td>
+            <td><a class="glyphicon glyphcon-pencil"> href="{% url 'edit_business' %}?id={{ business.id}}"></a>
+            &nbsp;&nbsp;&nbsp;&nbsp;<a class="glyphicon glyphcon-remove"
+                                       href="{% url 'delete_business' %}?business.id={{business_id}}"></a></td>>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
